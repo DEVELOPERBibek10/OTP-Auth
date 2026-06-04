@@ -2,12 +2,8 @@ import { redisClient } from "../db/redis.js";
 import { ConvertToNumber } from "../utils/StringToNumber.js";
 import ApiError from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import type { Request } from "express";
-interface User extends Request {
-  body: {
-    email: string;
-  };
-}
+import type { User } from "../types/user.js";
+
 const otpVerificationRateLimiter = asyncHandler(
   async (req: User, res, next) => {
     const currentTime = Date.now();
