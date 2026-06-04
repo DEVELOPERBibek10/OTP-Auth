@@ -1,0 +1,35 @@
+{
+  "name": "otp-verification",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Bibek",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@types/mongoose": "^5.11.96",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "google-auth-library": "^10.6.2",
+    "ioredis": "^5.11.0",
+    "mongoose": "^9.6.3",
+    "nodemailer": "^8.0.10"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.9.1",
+    "@types/nodemailer": "^8.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
