@@ -1,4 +1,4 @@
-export function getOtpEmailTemplate(otp: string): string {
+export function getOtpEmailTemplate(otp: number): string {
   return `
     <!DOCTYPE html>
     <html lang="en">
