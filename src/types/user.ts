@@ -1,10 +1,9 @@
+import type { Document, Types } from "mongoose";
 import type { Request } from "express";
-import type { Document } from "mongoose";
-export interface User extends Request {
-  body: {
-    username: string;
-    email: string;
-  };
+import type { JwtPayload } from "jsonwebtoken";
+export interface User {
+  username?: string;
+  email: string;
 }
 
 interface UserMethods {
@@ -16,4 +15,19 @@ export interface UserSchema extends Document, UserMethods {
   username: string;
   email: string;
   refreshToken: string;
+}
+
+export interface UserRequest extends Request {
+  user: {
+    _id: string | Types.ObjectId;
+    username: string;
+    email: string;
+  };
+}
+
+export interface DecodedToken extends JwtPayload {
+  _id: string;
+  email: string;
+  username: string;
+  fullName: string;
 }
