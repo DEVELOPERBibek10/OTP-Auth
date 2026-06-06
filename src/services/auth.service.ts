@@ -4,7 +4,7 @@ import ApiError from "../utils/ApiError.js";
 import emailService from "./email.service.js";
 import otpService from "./otp.service.js";
 import { generateAccessAndRefreshToken } from "../utils/generateTokens.js";
-import type { DecodedToken } from "../types/user.js";
+import type { DecodedRefreshToken } from "../types/user.js";
 import jwt from "jsonwebtoken";
 
 interface CompleteSignInOrUp {
@@ -132,12 +132,12 @@ class AuthService {
   }
 
   async refreshAccessToken(refreshToken: string) {
-    let decodedToken: DecodedToken;
+    let decodedToken: DecodedRefreshToken;
     try {
       decodedToken = jwt.verify(
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET!
-      ) as DecodedToken;
+      ) as DecodedRefreshToken;
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
         throw new ApiError(
