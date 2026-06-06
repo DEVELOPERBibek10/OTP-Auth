@@ -23,7 +23,7 @@ const userSchema = new Schema<UserSchema>(
       select: false,
     },
   },
-  { timestamps: true }
+  { timestamps: false }
 );
 
 userSchema.index({ username: 1, email: 1 }, { unique: true });
