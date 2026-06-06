@@ -1,10 +1,12 @@
 import type { Document, Types } from "mongoose";
 import type { Request } from "express";
 import type { JwtPayload } from "jsonwebtoken";
-export interface User {
-  username?: string;
+export interface SignUpUser {
+  username: string;
   email: string;
 }
+
+export interface SignInUser extends Omit<"User", "username"> {}
 
 interface UserMethods {
   generateAccessToken(): string;
@@ -25,9 +27,14 @@ export interface UserRequest extends Request {
   };
 }
 
-export interface DecodedToken extends JwtPayload {
+export interface DecodedAcceessToken extends JwtPayload {
   _id: string;
   email: string;
   username: string;
-  fullName: string;
+  tokenType: string;
+}
+
+export interface DecodedRefreshToken extends JwtPayload {
+  _id: string;
+  tokenType: string;
 }
