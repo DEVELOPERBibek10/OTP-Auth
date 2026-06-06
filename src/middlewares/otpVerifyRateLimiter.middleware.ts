@@ -3,23 +3,27 @@ import { ConvertToNumber } from "../utils/StringToNumber.js";
 import ApiError from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import type { User } from "../types/user.js";
+import type { Request } from "express";
 
 const otpVerificationRateLimiter = asyncHandler(
-  async (req: User, res, next) => {
+  async (req: Request<{}, {}, User>, res, next) => {
     const currentTime = Date.now();
     const otpKey = `otp:${req.body.email}`;
     const requestAttemptRecord = await redisClient.hgetall(otpKey);
     const record = requestAttemptRecord ? requestAttemptRecord : null;
-    const requestWindow = 12000;
+    const requestWindow = 15000;
     if (!record || Object.keys(record).length === 0) {
       throw new ApiError(404, "NOT_FOUND", "Otp not found or expired.");
     }
     const lastAttemptAt = ConvertToNumber(record.lastAttemptAt as string);
     if (currentTime - lastAttemptAt <= requestWindow) {
+      const timeLeft = Math.floor(
+        (requestWindow - (currentTime - lastAttemptAt)) / 1000
+      );
       throw new ApiError(
         429,
         "RATE_LIMIT_EXCEED",
-        "Too many otp verification attempts"
+        `Please re-attempt after ${timeLeft} seconds`
       );
     }
     const attempt = ConvertToNumber(record.attempt as string);
