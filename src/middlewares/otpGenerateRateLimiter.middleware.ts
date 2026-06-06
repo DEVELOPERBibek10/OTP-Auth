@@ -27,3 +27,5 @@ const otpGenerationRateLimiter = asyncHandler(
     next();
   }
 );
+
+export default otpGenerationRateLimiter;
