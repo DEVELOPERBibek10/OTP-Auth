@@ -4,6 +4,8 @@ import ApiError from "../utils/ApiError.js";
 import emailService from "./email.service.js";
 import otpService from "./otp.service.js";
 import { generateAccessAndRefreshToken } from "../utils/generateTokens.js";
+import type { DecodedToken } from "../types/user.js";
+import jwt from "jsonwebtoken";
 
 interface CompleteSignInOrUp {
   accessToken: string;
@@ -36,6 +38,7 @@ class AuthService {
 
     return emailInfo;
   }
+
   async completeSignUp(
     email: string,
     otp: number
@@ -87,6 +90,7 @@ class AuthService {
 
     return emailInfo;
   }
+
   async completeSignIn(
     email: string,
     otp: number
@@ -118,7 +122,51 @@ class AuthService {
 
     return { accessToken, refreshToken, user: { email, username } };
   }
-  async refreshAccessToken(refreshToken: string) {}
+
+  async signOut(refreshToken: string) {
+    await User.findOneAndUpdate(
+      { refreshToken: refreshToken },
+      { $unset: { refreshToken: 1 } },
+      { new: true }
+    );
+  }
+
+  async refreshAccessToken(refreshToken: string) {
+    let decodedToken: DecodedToken;
+    try {
+      decodedToken = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET!
+      ) as DecodedToken;
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new ApiError(
+          401,
+          "REFRESH_TOKEN_EXPIRED",
+          "Session expired, please login again"
+        );
+      }
+      if (error instanceof jwt.JsonWebTokenError) {
+        console.log("Cookie cleared: Malformed refresh token");
+        throw new ApiError(401, "INVALID_TOKEN", "Refresh token is malformed.");
+      }
+      throw error;
+    }
+    const user = await User.findById(decodedToken._id).select("+refreshToken");
+
+    if (!user || refreshToken !== user.refreshToken) {
+      throw new ApiError(
+        401,
+        "INVALID_TOKEN",
+        "Logged out due to invalid credentials!"
+      );
+    }
+
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+      await generateAccessAndRefreshToken(user._id);
+
+    return { newAccessToken, newRefreshToken };
+  }
 }
 
 const authService = new AuthService();
