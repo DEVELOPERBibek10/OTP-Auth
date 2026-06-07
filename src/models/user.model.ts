@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import jwt, { type Secret } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import type { UserSchema } from "../types/user.js";
 
 const userSchema = new Schema<UserSchema>(
@@ -25,8 +25,6 @@ const userSchema = new Schema<UserSchema>(
   },
   { timestamps: false }
 );
-
-userSchema.index({ username: 1, email: 1 }, { unique: true });
 
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
