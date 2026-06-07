@@ -1,12 +1,6 @@
 import type { Document, Types } from "mongoose";
 import type { Request } from "express";
 import type { JwtPayload } from "jsonwebtoken";
-export interface SignUpUser {
-  username: string;
-  email: string;
-}
-
-export interface SignInUser extends Omit<"User", "username"> {}
 
 interface UserMethods {
   generateAccessToken(): string;
