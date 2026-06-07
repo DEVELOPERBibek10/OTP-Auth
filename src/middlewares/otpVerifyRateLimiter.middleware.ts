@@ -2,11 +2,11 @@ import { redisClient } from "../db/redis.js";
 import { ConvertToNumber } from "../utils/StringToNumber.js";
 import ApiError from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import type { User } from "../types/user.js";
 import type { Request } from "express";
+import type { SignInUser } from "../validators/user.validator.js";
 
 const otpVerificationRateLimiter = asyncHandler(
-  async (req: Request<{}, {}, User>, res, next) => {
+  async (req: Request<{}, {}, SignInUser>, res, next) => {
     const currentTime = Date.now();
     const otpKey = `otp:${req.body.email}`;
     const requestAttemptRecord = await redisClient.hgetall(otpKey);

@@ -1,9 +1,9 @@
 import { redisClient } from "../db/redis.js";
-import type { SignUpUser } from "../types/user.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import type { Request, Response, NextFunction } from "express";
 import { ConvertToNumber } from "../utils/StringToNumber.js";
 import ApiError from "../utils/ApiError.js";
+import type { SignUpUser } from "../validators/user.validator.js";
 
 const otpGenerationRateLimiter = asyncHandler(
   async (
