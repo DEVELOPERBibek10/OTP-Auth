@@ -73,7 +73,7 @@ class AuthService {
   }
 
   async initiateSignIn(email: string): Promise<SentMessageInfo> {
-    const existingUser = await User.exists({
+    const existingUser = await User.findOne({
       email,
     });
 
@@ -85,7 +85,7 @@ class AuthService {
       );
     }
 
-    const otp = await otpService.setOTP(email);
+    const otp = await otpService.setOTP(email, existingUser.username);
     const emailInfo = await emailService.sendOTP(email, otp);
 
     return emailInfo;
