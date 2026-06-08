@@ -44,7 +44,11 @@ export const completeSignUp = asyncHandler(
       .cookie("accessToken", response.accessToken, accessTokenOptions)
       .cookie("refreshToken", response.refreshToken, refreshTokenOptions)
       .json(
-        new ApiResponse(200, response, `Welcome ${response.user.username}!`)
+        new ApiResponse(
+          200,
+          response.user,
+          `Welcome ${response.user.username}!`
+        )
       );
   }
 );
@@ -77,7 +81,11 @@ export const completeSignIn = asyncHandler(
       .cookie("accessToken", response.accessToken, accessTokenOptions)
       .cookie("refreshToken", response.refreshToken, refreshTokenOptions)
       .json(
-        new ApiResponse(200, response, `Welcome ${response.user.username}!`)
+        new ApiResponse(
+          200,
+          response.user,
+          `Welcome back ${response.user.username}!`
+        )
       );
   }
 );
