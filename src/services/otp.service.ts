@@ -22,8 +22,6 @@ class OtpService {
     await this.redisClient.hset(`otp:${email}`, {
       otp: OTP,
       attempts: 0,
-      createdAt: Date.now(),
-      lastAttemptAt: 0,
       username: username,
     });
     await this.redisClient.expire(`otp:${email}`, this.otpExpiry);
