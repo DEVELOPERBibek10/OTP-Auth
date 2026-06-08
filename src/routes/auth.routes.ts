@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { globalRateLimiter } from "../middlewares/rateLimiter.middleware.js";
+import {
+  globalRateLimiter,
+  protectedRateLimiter,
+} from "../middlewares/rateLimiter.middleware.js";
 import { validator } from "../middlewares/validator.middleware.js";
 import {
   signInSchema,
@@ -13,8 +16,10 @@ import {
   initSignIn,
   initSignUp,
   refreshAccessToken,
+  signOut,
 } from "../controllers/auth.controller.js";
 import otpVerificationRateLimiter from "../middlewares/otpVerifyRateLimiter.middleware.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 export const authRouter = Router();
 
@@ -46,4 +51,5 @@ authRouter.post(
   otpVerificationRateLimiter,
   completeSignIn
 );
+authRouter.post("/sign-out", verifyJWT, protectedRateLimiter, signOut);
 authRouter.post("/refresh", globalRateLimiter, refreshAccessToken);
