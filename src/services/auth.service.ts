@@ -6,11 +6,13 @@ import otpService from "./otp.service.js";
 import { generateAccessAndRefreshToken } from "../utils/generateTokens.js";
 import type { DecodedRefreshToken } from "../types/user.js";
 import jwt from "jsonwebtoken";
+import type { Types } from "mongoose";
 
 interface CompleteSignInOrUp {
   accessToken: string;
   refreshToken: string;
   user: {
+    _id: string | Types.ObjectId;
     email: string;
     username: string;
   };
@@ -69,7 +71,15 @@ class AuthService {
       newUser._id
     );
 
-    return { accessToken, refreshToken, user: { email, username } };
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        _id: newUser._id,
+        email: newUser.email,
+        username: newUser.username,
+      },
+    };
   }
 
   async initiateSignIn(email: string): Promise<SentMessageInfo> {
@@ -120,7 +130,11 @@ class AuthService {
       user._id
     );
 
-    return { accessToken, refreshToken, user: { email, username } };
+    return {
+      accessToken,
+      refreshToken,
+      user: { _id: user._id, email, username },
+    };
   }
 
   async signOut(refreshToken: string) {
