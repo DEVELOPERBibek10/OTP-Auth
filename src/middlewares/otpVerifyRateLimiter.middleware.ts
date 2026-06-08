@@ -29,11 +29,6 @@ const otpVerificationRateLimiter = asyncHandler(
       );
     }
 
-    await redisClient.hset(
-      `otp:${req.body.email}`,
-      "lastAttemptAt",
-      Date.now()
-    );
     next();
   }
 );
