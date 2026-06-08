@@ -1,5 +1,4 @@
 import { redisClient } from "../db/redis.js";
-import { ConvertToNumber } from "../utils/StringToNumber.js";
 import ApiError from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import type { Request } from "express";
@@ -7,27 +6,22 @@ import type { SignInUser } from "../validators/user.validator.js";
 
 const otpVerificationRateLimiter = asyncHandler(
   async (req: Request<{}, {}, SignInUser>, res, next) => {
-    const currentTime = Date.now();
     const otpKey = `otp:${req.body.email}`;
-    const requestAttemptRecord = await redisClient.hgetall(otpKey);
-    const record = requestAttemptRecord ? requestAttemptRecord : null;
-    const requestWindow = 15000;
-    if (!record || Object.keys(record).length === 0) {
+    const lockKey = `otp:lock:verify:${req.body.email}`;
+    const otpExists = await redisClient.exists(otpKey);
+    if (!otpExists) {
       throw new ApiError(404, "NOT_FOUND", "Otp not found or expired.");
     }
-    const lastAttemptAt = ConvertToNumber(record.lastAttemptAt as string);
-    if (currentTime - lastAttemptAt <= requestWindow) {
-      const timeLeft = Math.floor(
-        (requestWindow - (currentTime - lastAttemptAt)) / 1000
-      );
+    const isLockAccuired = await redisClient.set(lockKey, 1, "PX", 15000, "NX");
+    if (isLockAccuired === null) {
       throw new ApiError(
         429,
-        "RATE_LIMIT_EXCEED",
-        `Please re-attempt after ${timeLeft} seconds`
+        "TOO_MANY_REQUEST",
+        "Please wait for 15 seconds brfore attempting again."
       );
     }
-    const attempt = ConvertToNumber(record.attempt as string);
-    if (attempt >= 5) {
+    const currentAttempt = await redisClient.hincrby(otpKey, "attempts", 1);
+    if (currentAttempt > 5) {
       throw new ApiError(
         429,
         "ATTEMPT_EXCEED",
@@ -35,6 +29,11 @@ const otpVerificationRateLimiter = asyncHandler(
       );
     }
 
+    await redisClient.hset(
+      `otp:${req.body.email}`,
+      "lastAttemptAt",
+      Date.now()
+    );
     next();
   }
 );
