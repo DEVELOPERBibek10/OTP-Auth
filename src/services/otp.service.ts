@@ -23,7 +23,7 @@ class OtpService {
       otp: OTP,
       attempts: 0,
       createdAt: Date.now(),
-      lastAttemptAt: Date.now(),
+      lastAttemptAt: 0,
       username: username,
     });
     await this.redisClient.expire(`otp:${email}`, this.otpExpiry);
@@ -35,8 +35,6 @@ class OtpService {
     const OtpData = await this.redisClient.hgetall(`otp:${email}`);
 
     if (parseInt(OtpData.otp as string) !== otp) {
-      await this.redisClient.hincrby(`otp:${email}`, "attempts", 1);
-      await this.redisClient.hset(`otp:${email}`, "lastAttemptAt", Date.now());
       return { success: false, username: "" };
     }
 
