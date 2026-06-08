@@ -1,4 +1,4 @@
-import type { DecodedAcceessToken, UserRequest } from "../types/user.js";
+import type { DecodedAcceessToken, AuthRequest } from "../types/user.js";
 import type { NextFunction, Response } from "express";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 
 export const verifyJWT = asyncHandler(
-  async (req: UserRequest, res: Response, next: NextFunction) => {
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
