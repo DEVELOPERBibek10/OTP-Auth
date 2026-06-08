@@ -124,14 +124,17 @@ class AuthService {
   }
 
   async signOut(refreshToken: string) {
-    await User.findOneAndUpdate(
+    const user = await User.findOneAndUpdate(
       { refreshToken: refreshToken },
       { $unset: { refreshToken: 1 } },
       { new: true }
     );
+    return user;
   }
 
-  async refreshAccessToken(refreshToken: string) {
+  async refreshAccessToken(
+    refreshToken: string
+  ): Promise<{ newRefreshToken: string; newAccessToken: string }> {
     let decodedToken: DecodedRefreshToken;
     try {
       decodedToken = jwt.verify(
@@ -142,22 +145,25 @@ class AuthService {
       if (error instanceof jwt.TokenExpiredError) {
         throw new ApiError(
           401,
-          "REFRESH_TOKEN_EXPIRED",
+          "UNAUTHORIZED",
           "Session expired, please login again"
         );
       }
       if (error instanceof jwt.JsonWebTokenError) {
         console.log("Cookie cleared: Malformed refresh token");
-        throw new ApiError(401, "INVALID_TOKEN", "Refresh token is malformed.");
+        throw new ApiError(401, "UNAUTHORIZED", "Malformed credentials!.");
       }
       throw error;
     }
     const user = await User.findById(decodedToken._id).select("+refreshToken");
+    if (!user) {
+      throw new ApiError(404, "NOT_FOUND", "User does not exist.");
+    }
 
-    if (!user || refreshToken !== user.refreshToken) {
+    if (refreshToken !== user.refreshToken) {
       throw new ApiError(
         401,
-        "INVALID_TOKEN",
+        "UNAUTHORISED",
         "Logged out due to invalid credentials!"
       );
     }
