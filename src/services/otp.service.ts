@@ -31,7 +31,6 @@ class OtpService {
 
   async verifyOTP(email: string, otp: number): Promise<VerifyOTPResponse> {
     const OtpData = await this.redisClient.hgetall(`otp:${email}`);
-
     if (parseInt(OtpData.otp as string) !== otp) {
       return { success: false, username: "" };
     }
