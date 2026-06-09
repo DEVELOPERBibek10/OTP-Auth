@@ -13,7 +13,7 @@ export interface UserSchema extends Document, UserMethods {
   refreshToken: string;
 }
 
-export interface UserRequest extends Request {
+export interface AuthRequest extends Request {
   user: {
     _id: string | Types.ObjectId;
     username: string;
