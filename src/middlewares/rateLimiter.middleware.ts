@@ -19,19 +19,20 @@ export const protectedRateLimiter = asyncHandler(
 );
 
 const rateLimiter = async (key: string) => {
-  const count = await redisClient.get(key);
   const maxRequest = 20;
-  if (!count) {
-    await redisClient.set(key, 1, "EX", 300);
-    return;
-  } else if (parseInt(count) < maxRequest) {
-    await redisClient.incr(key);
+  const count = await redisClient.incr(key);
+  if (count === 1) {
+    await redisClient.expire(key, 300);
     return;
   }
-  const expiry = await redisClient.ttl(key);
-  throw new ApiError(
-    429,
-    "TOO_MANY_REQUESTS",
-    `Maximum request limit reached. Try again in ${expiry} seconds`
-  );
+
+  if (count > maxRequest) {
+    throw new ApiError(
+      429,
+      "TOO_MANY_REQUESTS",
+      "Please wait for 5 minutes before another request."
+    );
+  }
+
+  return;
 };
