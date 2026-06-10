@@ -17,7 +17,7 @@ const otpVerificationRateLimiter = asyncHandler(
       throw new ApiError(
         429,
         "TOO_MANY_REQUEST",
-        "Please wait for 15 seconds brfore attempting again."
+        "Please wait for 15 seconds before attempting again."
       );
     }
     const currentAttempt = await redisClient.hincrby(otpKey, "attempts", 1);
